@@ -1,7 +1,6 @@
 /**
  * Luffa SDK Wrapper for RWA Insight
  * Based on Luffa SuperBox Development Guide
- * https://luffa.im/SuperBox/docs/hk/jssdk/description.html
  * https://luffa.im/SuperBox/docs/hk/miniProDevelopmentGuide/Introduction.html
  */
 
@@ -17,75 +16,14 @@ const create16String = () => {
     return randomStr;
 };
 
-// Track if SDK is ready
-let isSDKReady = false;
-let readyCallbacks = [];
-
-// Initialize SDK when WeixinJSBridge is ready
-function initSDK() {
-    if (!isSDKReady) {
-        isSDKReady = true;
-        console.log('[Luffa SDK] Initialized, environment:', typeof window !== 'undefined' ? window.__wxjs_environment : 'unknown');
-        // Execute all pending callbacks
-        readyCallbacks.forEach(callback => {
-            try {
-                callback();
-            } catch (err) {
-                console.error('[Luffa SDK] Error in ready callback:', err);
-            }
-        });
-        readyCallbacks = [];
-    }
-}
-
-// Wait for WeixinJSBridge to be ready (for Luffa mini-program environment)
-if (typeof window !== 'undefined') {
-    if (!window.WeixinJSBridge || !window.WeixinJSBridge.invoke) {
-        if (typeof document !== 'undefined') {
-            document.addEventListener('WeixinJSBridgeReady', initSDK, false);
-        }
-    } else {
-        initSDK();
-    }
-
-    // Also initialize immediately if not in mini-program (for browser testing)
-    setTimeout(() => {
-        if (!isSDKReady && window.__wxjs_environment !== 'miniprogram') {
-            initSDK();
-        }
-    }, 100);
-}
-
 export const LuffaSDK = {
     // Check if we're in Luffa mini-program environment
     isLuffaEnv: () => {
-        if (typeof window === 'undefined') return false;
-
-        // Check multiple indicators according to Luffa documentation
-        return (
-            window.__wxjs_environment === 'miniprogram' ||
-            (typeof wx !== 'undefined' && wx.invokeNativePlugin) ||
-            (window.navigator && window.navigator.userAgent.toLowerCase().includes('miniprogram'))
-        );
-    },
-
-    // Wait for SDK to be ready (WeixinJSBridgeReady)
-    ready: (callback) => {
-        if (typeof callback !== 'function') {
-            console.error('[Luffa SDK] ready() requires a callback function');
-            return;
-        }
-
-        if (isSDKReady) {
-            callback();
-        } else {
-            readyCallbacks.push(callback);
-        }
+        return typeof wx !== 'undefined' && wx.invokeNativePlugin;
     },
 
     /**
      * Connect wallet and get user info
-     * Should be called after SDK is ready
      * Returns: address, avatar (base64), cid (Luffa CID avatar), nickname, uid (Luffa ID)
      */
     connectWallet: (options = {}) => {
@@ -108,7 +46,6 @@ export const LuffaSDK = {
                         data: {},
                     },
                     success: (res) => {
-                        console.log('[Luffa SDK] Wallet connected:', res);
                         if (res && res.data) {
                             resolve({
                                 address: res.data.address,
@@ -122,15 +59,11 @@ export const LuffaSDK = {
                             reject(new Error('Invalid response from wallet connect'));
                         }
                     },
-                    fail: (err) => {
-                        console.error('[Luffa SDK] Wallet connect failed:', err);
-                        reject(err);
-                    }
+                    fail: (err) => reject(err)
                 };
                 wx.invokeNativePlugin(opts);
             } else {
                 // Mock for browser testing
-                console.log('[Luffa SDK] Running in browser mode, using mock wallet data');
                 setTimeout(() => {
                     resolve({
                         address: '0x71C7656EC7ab88b098defB751B7401B5f6d8976F',
@@ -301,7 +234,7 @@ export const LuffaSDK = {
             } else {
                 // Mock for browser testing
                 setTimeout(() => {
-                    console.log('[Luffa SDK] Transaction simulation:', tx);
+                    console.log('Transaction simulation:', tx);
                     resolve({ hash: '0x' + Math.random().toString(16).slice(2) });
                 }, 800);
             }
@@ -317,8 +250,8 @@ export const LuffaSDK = {
                 title: info.title || 'RWA Insight - Track Real World Assets',
                 path: info.path || '/pages/index/index',
                 imageUrl: info.imageUrl || '',
-                success: () => console.log('[Luffa SDK] Share info set'),
-                fail: (err) => console.error('[Luffa SDK] Set share info failed', err)
+                success: () => console.log('Share info set'),
+                fail: (err) => console.error('Set share info failed', err)
             });
         }
     },
@@ -329,8 +262,6 @@ export const LuffaSDK = {
     close: () => {
         if (typeof wx !== 'undefined' && wx.miniProgram) {
             wx.miniProgram.navigateBack();
-        } else {
-            console.log('[Luffa SDK] close() called but not in mini-program environment');
         }
     },
 
@@ -349,7 +280,7 @@ export const LuffaSDK = {
                     fail: () => resolve('en')
                 });
             } else {
-                resolve(typeof navigator !== 'undefined' ? navigator.language?.slice(0, 2) || 'en' : 'en');
+                resolve(navigator.language?.slice(0, 2) || 'en');
             }
         });
     },
@@ -367,19 +298,9 @@ export const LuffaSDK = {
                         id: params.id
                     }
                 },
-                success: () => console.log('[Luffa SDK] Chat opened'),
-                fail: (err) => console.error('[Luffa SDK] Failed to open chat', err)
+                success: () => console.log('Chat opened'),
+                fail: (err) => console.error('Failed to open chat', err)
             });
         }
     }
 };
-
-// Log SDK status on load
-if (typeof window !== 'undefined') {
-    console.log('[Luffa SDK] Module loaded. Environment check:', {
-        isLuffaEnv: LuffaSDK.isLuffaEnv(),
-        wxjs_environment: window.__wxjs_environment,
-        hasWx: typeof wx !== 'undefined',
-        hasWeixinJSBridge: typeof window.WeixinJSBridge !== 'undefined'
-    });
-}

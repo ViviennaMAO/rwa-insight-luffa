@@ -272,22 +272,31 @@ export default function App() {
   // Auto-connect wallet on mount (in Luffa environment)
   useEffect(() => {
     const initWallet = async () => {
-      try {
-        // Check if we're in Luffa environment and auto-connect
-        if (LuffaSDK.isLuffaEnv()) {
-          const data = await LuffaSDK.connectWallet();
-          setUserData(data);
-          setIsWalletConnected(true);
-          // Mock balance for demo
-          setWalletBalance(5000);
-        } else {
-          // For browser testing, show connect button
+      // Wait for Luffa SDK to be ready (handles WeixinJSBridgeReady event)
+      LuffaSDK.ready(async () => {
+        try {
+          // Check if we're in Luffa environment and auto-connect
+          if (LuffaSDK.isLuffaEnv()) {
+            console.log('[RWA Insight] Connecting wallet in Luffa environment...');
+            const data = await LuffaSDK.connectWallet({
+              appUrl: 'https://rwa-insight.luffa.im',
+              appIcon: 'https://rwa-insight.luffa.im/icon.png'
+            });
+            setUserData(data);
+            setIsWalletConnected(true);
+            // Mock balance for demo
+            setWalletBalance(5000);
+            console.log('[RWA Insight] Wallet connected:', data.address);
+          } else {
+            // For browser testing, show connect button
+            console.log('[RWA Insight] Running in browser mode');
+            setIsWalletConnected(false);
+          }
+        } catch (err) {
+          console.error('[RWA Insight] Wallet init failed:', err);
           setIsWalletConnected(false);
         }
-      } catch (err) {
-        console.error('Wallet init failed:', err);
-        setIsWalletConnected(false);
-      }
+      });
     };
     initWallet();
   }, []);
