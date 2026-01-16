@@ -49,6 +49,7 @@ import { twMerge } from 'tailwind-merge';
 import { MOCK_DATA } from './mockData';
 import { LuffaSDK } from './sdk';
 import { APP_CONFIG } from './config';
+import walletService from './services/walletService';
 
 function cn(...inputs) {
   return twMerge(clsx(inputs));
@@ -256,6 +257,10 @@ export default function App() {
   const [depositStatus, setDepositStatus] = useState(null); // 'processing', 'success', 'error'
 
   const [walletBalance, setWalletBalance] = useState(0);
+  const [portfolioData, setPortfolioData] = useState(null);
+  const [isLoadingWallet, setIsLoadingWallet] = useState(false);
+  const [walletError, setWalletError] = useState(null);
+  const [transactions, setTransactions] = useState([]);
   const [addressCopied, setAddressCopied] = useState(false);
 
   // 分类图标映射
@@ -285,9 +290,24 @@ export default function App() {
             });
             setUserData(data);
             setIsWalletConnected(true);
-            // Mock balance for demo
-            setWalletBalance(5000);
             console.log('[RWA Insight] Wallet connected:', data.address);
+
+            // Fetch real wallet data
+            setIsLoadingWallet(true);
+            try {
+              const walletData = await walletService.refreshWalletData(data.address, 'endless');
+              setWalletBalance(walletData.balance);
+              setPortfolioData(walletData.portfolio);
+              setTransactions(walletData.transactions);
+              console.log('[RWA Insight] Wallet data loaded:', walletData);
+            } catch (err) {
+              console.error('[RWA Insight] Failed to load wallet data:', err);
+              setWalletError(err.message);
+              // Fallback to mock data for portfolio display
+              setWalletBalance(5000);
+            } finally {
+              setIsLoadingWallet(false);
+            }
           } else {
             // For browser testing, show connect button
             console.log('[RWA Insight] Running in browser mode');
@@ -312,7 +332,12 @@ export default function App() {
       });
       setUserData(data);
       setIsWalletConnected(true);
-      setWalletBalance(5000); // Mock balance
+
+      // Fetch real wallet data
+      const walletData = await walletService.refreshWalletData(data.address, 'endless');
+      setWalletBalance(walletData.balance);
+      setPortfolioData(walletData.portfolio);
+      setTransactions(walletData.transactions);
     } catch (err) {
       console.error('Connect wallet failed:', err);
       alert('Failed to connect wallet. Please try again.');
@@ -3844,7 +3869,7 @@ export default function App() {
               <div style={{ backgroundColor: '#000', padding: '32px', borderRadius: '32px', color: '#FFF', marginBottom: '24px' }}>
                 <p style={{ fontSize: '10px', fontWeight: 900, opacity: 0.5, letterSpacing: '2px', marginBottom: '4px' }}>ESTIMATED BALANCE</p>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
-                  <h2 style={{ fontSize: '36px', fontWeight: 900, fontStyle: 'italic' }}>${MOCK_DATA.user.portfolio.totalValue.toLocaleString()}</h2>
+                  <h2 style={{ fontSize: '36px', fontWeight: 900, fontStyle: 'italic' }}>${(portfolioData?.totalValue || 0).toLocaleString()}</h2>
                   <span style={{ color: '#10B981', fontSize: '12px', fontWeight: 900 }}>+2.4%</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '40px', opacity: 0.3, fontSize: '9px', fontWeight: 900 }}>
@@ -4426,7 +4451,7 @@ export default function App() {
                             });
 
                             // Mock portfolio update logic
-                            MOCK_DATA.user.portfolio.totalValue += parseFloat(investAmount);
+                            (portfolioData?.totalValue || 0) += parseFloat(investAmount);
                             const existing = MOCK_DATA.user.portfolio.assets.find(a => a.name.includes(selectedAsset.name));
                             if (existing) {
                               existing.value += parseFloat(investAmount);
