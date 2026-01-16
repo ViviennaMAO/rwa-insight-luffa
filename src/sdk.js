@@ -101,8 +101,8 @@ export const LuffaSDK = {
                         },
                         metadata: {
                             superBox: true,
-                            url: options.appUrl || 'https://rwa-insight.luffa.im',
-                            icon: options.appIcon || 'https://rwa-insight.luffa.im/icon.png'
+                            url: options.appUrl || 'https://rwa-insight-luffa.vercel.app',
+                            icon: options.appIcon || 'https://rwa-insight-luffa.vercel.app/icon.png'
                         },
                         from: '',
                         data: {},

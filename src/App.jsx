@@ -48,6 +48,7 @@ import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { MOCK_DATA } from './mockData';
 import { LuffaSDK } from './sdk';
+import { APP_CONFIG } from './config';
 
 function cn(...inputs) {
   return twMerge(clsx(inputs));
@@ -279,8 +280,8 @@ export default function App() {
           if (LuffaSDK.isLuffaEnv()) {
             console.log('[RWA Insight] Connecting wallet in Luffa environment...');
             const data = await LuffaSDK.connectWallet({
-              appUrl: 'https://rwa-insight.luffa.im',
-              appIcon: 'https://rwa-insight.luffa.im/icon.png'
+              appUrl: APP_CONFIG.appUrl,
+              appIcon: APP_CONFIG.appIcon
             });
             setUserData(data);
             setIsWalletConnected(true);
@@ -306,8 +307,8 @@ export default function App() {
     setIsConnecting(true);
     try {
       const data = await LuffaSDK.connectWallet({
-        appUrl: 'https://rwa-insight.luffa.im',
-        appIcon: 'https://rwa-insight.luffa.im/icon.png'
+        appUrl: APP_CONFIG.appUrl,
+        appIcon: APP_CONFIG.appIcon
       });
       setUserData(data);
       setIsWalletConnected(true);
