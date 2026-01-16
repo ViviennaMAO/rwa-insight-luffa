@@ -1,0 +1,55 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-background: #FFFFFF;
+  --color-surface: #F7F8FA;
+  --color-primary: #10B981;
+  --color-crimson: #EF4444;
+  --color-text-main: #1A1C1E;
+  --color-text-secondary: #6C727A;
+  --color-border-light: #F1F2F4;
+}
+
+/* Base resets to safeguard against old browser engines in web-views */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+  width: 100%;
+  background-color: white;
+  color: #1A1C1E;
+  font-family: -apple-system, system-ui, sans-serif;
+  overflow-x: hidden;
+}
+
+/* Fallback flex layouts if Tailwind's atomic classes flake out */
+.flex {
+  display: flex !important;
+}
+
+.flex-col {
+  flex-direction: column !important;
+}
+
+.items-center {
+  align-items: center !important;
+}
+
+.justify-between {
+  justify-content: space-between !important;
+}
+
+.flex-1 {
+  flex: 1 !important;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}

@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="description" content="RWA Insight - Track and invest in Real World Assets on blockchain" />
+    <meta name="theme-color" content="#000000" />
+
+    <!-- Luffa SuperBox Meta Tags -->
+    <meta name="superbox:app-id" content="rwa-insight" />
+    <meta name="superbox:version" content="1.0.0" />
+
+    <!-- PWA Tags -->
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <link rel="apple-touch-icon" href="/icon-192.png" />
+
+    <title>RWA Insight - Real World Assets</title>
+
+    <!-- Disable default touch behaviors for better mini-program experience -->
+    <style>
+      * {
+        -webkit-tap-highlight-color: transparent;
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        user-select: none;
+      }
+
+      input, textarea {
+        -webkit-user-select: text;
+        user-select: text;
+      }
+
+      html, body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        overflow-x: hidden;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+          'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+          sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      /* Hide scrollbar but keep functionality */
+      .no-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+
+      .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
